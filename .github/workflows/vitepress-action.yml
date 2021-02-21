@@ -1,0 +1,38 @@
+name: Vitepress Action
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+
+jobs:
+  vitepress-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "main"
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build dist
+        run: |
+          yarn docs:build
+
+      - name: Deploy gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          cname: ${{ secrets.CNAME }}
+          commit_message: ${{ github.event.head_commit.message }}
+          publish_branch: "gh-pages"
+          publish_dir: "docs/.vitepress/dist"
+          force_orphan: true
+          enable_jekyll: true
+          keep_files: true
